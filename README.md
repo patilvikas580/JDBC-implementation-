@@ -4,7 +4,8 @@ This Java program is a console-based application that interacts with a MySQL dat
 Follow these steps to set up and run the project on your local machine:
 1. **Add JDBC MySQL connector to your project folder**:
 2. **Database Configuration**:
-    1.Ensure you have a MySQL database named mydb with a table named Students.
+    <br>
+   1.Ensure you have a MySQL database named mydb with a table named Students.
    <br>
     2.Update the database connection details in the Main class:
 4. **Compile the Java Code**:
