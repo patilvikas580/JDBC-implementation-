@@ -25,6 +25,12 @@ Before running the project, ensure you have the following installed:
 - **MySQL** Server
 - **JDBC Driver** for MySQL (MySQL Connector/J)
 
+## Modules 📚
+**Insert Data Module 📝**
+This module lets you insert new student records. To add a student, simply enter their details and click Insert.
+![Insert](https://github.com/user-attachments/assets/a0405f61-e699-4f59-860b-027e62a7048f)
+
+
 ## Setup Guide ⚙️
 
 Follow these steps to set up and run the project:
