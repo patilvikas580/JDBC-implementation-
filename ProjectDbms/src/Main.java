@@ -1,177 +1,331 @@
-import java.io.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
-import java.util.*;
 
 public class Main {
-    public static final String URL = "jdbc:mysql://localhost:3306/mydb";
-    
-    public static final String Username = "root";
-    public static final String Password = "Vikas@13";
-    
-    public Scanner ii=new Scanner(System.in);
-
-    public void insertData() {
-        try(Connection connection =DriverManager.getConnection(URL,Username,Password);Statement statement=connection.createStatement()){
-        	String query="Insert into Students(name,age,marks)values(?,?,?)";
-        	PreparedStatement p=connection.prepareStatement(query);
-        	while(true)
-        	{
-        		System.out.println("Enter name of student");
-        		String s=ii.next();
-        		System.out.println("Enter age of student");
-        		int a=ii.nextInt();
-        		System.out.println("Enter marks of student");
-        		double d=ii.nextDouble();
-        		p.setString(1, s);
-        		p.setInt(2, a);
-        		p.setDouble(3, d);
-        		int rowsAffect=p.executeUpdate();
-    			if(rowsAffect>0)
-    			{
-    				System.out.println("Data Inserted ");
-    			}
-    			else {
-    				System.out.println("Data not inserted");
-    			}
-    			System.out.println("Want to insert more data (Y/N)");
-    			String choice=ii.next();
-    			if(choice.toUpperCase().contains("N"))
-    			{
-    				break;
-    			}
-        	}
-        }catch(Exception e)
-        {
-        	System.out.println(e.getMessage());
-        }
-    }
-
-    public void updateData() {
-        // Implementation for updating data
-        try(Connection connection=DriverManager.getConnection(URL,Username,Password);Statement statement=connection.createStatement()){
-        	String query="update students set name=? where id=?";
-        	PreparedStatement p=connection.prepareStatement(query);
-        	while(true)
-        	{
-        		System.out.println("Enter id of student");
-        		int i=ii.nextInt();
-        		System.out.println("Enter Name");
-        		String n=ii.next();
-        		
-        		p.setString(1, n);
-        		p.setInt(2, i);
-        		int r=p.executeUpdate();
-        		if(r>0)
-        		{
-        			System.out.println("Data updated successfully");
-        		}else {
-        			System.out.println("Data not updated");
-        		}
-        		System.out.println("Want to insert more data (Y/N)");
-    			String choice=ii.next();
-    			if(choice.toUpperCase().contains("N"))
-    			{
-    				break;
-    			}
-        	}
-        	
-        }catch(Exception e)
-        {
-        	System.out.println(e.getCause());
-        }
-    }
-
-    public void deleteData() {
-        // Implementation for deleting data
-        try(Connection connection=DriverManager.getConnection(URL,Username,Password);)
-        {
-        	String query="delete from students where id=?";
-        	PreparedStatement p=connection.prepareStatement(query);
-        	while(true)
-        	{
-        		System.out.println("Enter id");
-        		int i=ii.nextInt();
-        		p.setInt(1, i);
-        		int r=p.executeUpdate();
-        		if(r>0)
-        		{
-        			System.out.println("Data deleted successfully");
-        		}
-        		else {
-        			System.out.println("Data deleted failed and abort");
-        		}
-        		System.out.println("Want to delete more data (Y/N)");
-        		String c=ii.next();
-        		if(c.toUpperCase().contains("N"))
-        		{
-        			break;
-        		}
-        	}
-        }catch(Exception e)
-        {
-        	System.out.println(e.getMessage());
-        }
-    }
-
-    public void displayData() {
-        // Implementation for displaying data
-    	try (Connection connection = DriverManager.getConnection(URL, Username, Password);
-    			
-                Statement statement = connection.createStatement()) {
-               String query = "SELECT * FROM students";
-               ResultSet resultSet = statement.executeQuery(query);
-               while (resultSet.next()) {
-                   int id = resultSet.getInt("id");
-                   String name = resultSet.getString("name");
-                   int age = resultSet.getInt("age");
-                   double marks = resultSet.getDouble("marks");
-
-                   System.out.println("ID: " + id);
-                   System.out.println("Name: " + name);
-                   System.out.println("Age: " + age);
-                   System.out.println("Marks: " + marks);
-               }
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
-    }
+    private static final String URL = "jdbc:mysql://localhost:3306/mydb";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "Vikas@13";
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        Main ss = new Main();
-        int ch;
+        SwingUtilities.invokeLater(() -> {
+            createGUI();
+        });
+    }
 
-        do {
-            System.out.println("Enter your choice:");
-            System.out.println("1. Insert Data  2. Update Data  3. Delete Data  4. Display Data  5. Exit");
-            ch = sc.nextInt();
+    private static void createGUI() {
+        JFrame frame = new JFrame("Student Management System");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        tabbedPane.addTab("Insert Data", createInsertPanel());
+        tabbedPane.addTab("Update Data", createUpdatePanel());
+        tabbedPane.addTab("Delete Data", createDeletePanel());
+        tabbedPane.addTab("Display Data", createDisplayPanel());
+        tabbedPane.addTab("Search ", createSearchPanel());
+
+        frame.add(tabbedPane);
+        frame.setVisible(true);
+    }
+    
+    private static JPanel createSearchPanel() {
+        // Main panel to hold the split pane
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // Left panel for search box and button
+        JPanel leftPanel = new JPanel(new GridLayout(5, 1, 5, 5));
+        JLabel idLabel = new JLabel("ID");
+        JTextField idField = new JTextField();
+        JButton search = new JButton("Search");
+
+        leftPanel.add(idLabel);
+        leftPanel.add(idField);
+        leftPanel.add(search);
+
+        JTextArea ar = new JTextArea("");
+        ar.setEditable(false);
+
+        JScrollPane rightPanel = new JScrollPane(ar);
+
+        // Create a split pane to separate left and right panels
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        splitPane.setDividerLocation(200); // Set initial divider location (adjust as needed)
+        splitPane.setResizeWeight(0.3);    // Allocate 30% space to the left panel
+
+        // Add the split pane to the main panel
+        panel.add(splitPane, BorderLayout.CENTER);
+
+        // Add action listener for the search button
+        search.addActionListener(e -> {
             try {
-                switch (ch) {
-                    case 1:
-                        ss.insertData();
-                        break;
-                    case 2:
-                        ss.updateData();
-                        break;
-                    case 3:
-                        ss.deleteData();
-                        break;
-                    case 4:
-                        ss.displayData();
-                        break;
-                    case 5:
-                        System.out.println("Exiting...");
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please enter a valid option.");
-                        
-                }
-            } catch (Exception e) {
-                System.out.print(e);
-            }
-        } while (ch != 5);
+                int id = Integer.parseInt(idField.getText()); // Parse ID from input
+                ar.setText(""); // Clear previous search results
 
-        sc.close();
+                try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+                    String query = "SELECT * FROM students_data WHERE id = ?";
+                    PreparedStatement preparedStatement = connection.prepareStatement(query);
+                    preparedStatement.setInt(1, id);
+
+                    // Execute the query
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    if (resultSet.next()) {
+                        // Process and display the first row of results
+                        int idResult = resultSet.getInt("id");
+                        String name = resultSet.getString("name");
+                        String address=resultSet.getString("address");
+                        String mobileno=resultSet.getString("mobile_no");
+                        String email=resultSet.getString("email_id");
+                        String branch=resultSet.getString("branch");
+                        int year=resultSet.getInt("year");
+                        int age = resultSet.getInt("age");
+
+                        ar.append("ID: " + idResult + "\n");
+                        ar.append("Name: " + name + "\n");
+                        ar.append("Age: " + age + "\n");
+                        ar.append("Address: " + address + "\n");
+                        ar.append("Mobile No: " + mobileno + "\n");
+                        ar.append("Email: " + email + "\n");
+                        ar.append("Branch: " + branch + "\n");
+                        ar.append("Y: " + year + "\n");
+                        ar.append("----------------------\n");
+                    } else {
+                        // If no rows are found
+                        ar.append("No record found.\n");
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(panel, "Please enter a valid ID.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        return panel;
+    }
+
+
+
+    private static JPanel createInsertPanel() {
+        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField();
+        JLabel ageLabel = new JLabel("Age:");
+        JTextField ageField = new JTextField();
+        JLabel addressLabel = new JLabel("Address:");
+        JTextField addressField = new JTextField();
+        JLabel mobileLabel = new JLabel("Mobile No:");
+        JTextField mobileField = new JTextField();
+        JLabel emailidLabel = new JLabel("Email ID:");
+        JTextField emailField = new JTextField();
+        JLabel branchLabel = new JLabel("Branch:");
+        JTextField branchField = new JTextField();
+        JLabel studyYear=new JLabel("Year of study");
+        JTextField sfield=new JTextField();
+        JButton insertButton = new JButton("Insert");
+
+        panel.add(nameLabel);
+        panel.add(nameField);
+        panel.add(ageLabel);
+        panel.add(ageField);
+        panel.add(addressLabel);
+        panel.add(addressField);
+        panel.add(mobileLabel);
+        panel.add(mobileField);
+        panel.add(emailidLabel);
+        panel.add(emailField);
+        panel.add(branchLabel);
+        panel.add(branchField);
+        panel.add(studyYear);
+        panel.add(sfield);
+        panel.add(new JLabel());
+        panel.add(insertButton);
+
+        insertButton.addActionListener(e -> {
+        	
+        		String name = nameField.getText();
+                int age = Integer.parseInt(ageField.getText());
+                String address=addressField.getText();
+                String mobileno=mobileField.getText();
+                String email=emailField.getText();
+                String branch=branchField.getText();
+                int year=Integer.parseInt(sfield.getText());
+        	
+            
+            
+            
+            try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+                String query = "INSERT INTO students_data(name,address, mobile_no,email_id, branch,year,age) VALUES (?, ?, ?,?,?,?,?)";
+                PreparedStatement p = connection.prepareStatement(query);
+                p.setString(1,name );
+                p.setString(2, address);
+                p.setString(3, mobileno);
+                p.setString(4, email);
+                p.setString(5, branch);
+                p.setInt(6, year);
+                p.setInt(7, age);
+                
+
+                int rowsAffected = p.executeUpdate();
+     
+                if (rowsAffected > 0) 
+                {
+                	
+                    JOptionPane.showMessageDialog(panel, "Data Inserted Successfully");
+                    nameField.setText("");
+                    ageField.setText("");
+                    addressField.setText("");
+                    emailField.setText("");
+                    branchField.setText("");
+                    sfield.setText("");
+                    mobileField.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Insert Failed");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+        return panel;
+    }
+
+    private static JPanel createUpdatePanel() {
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JLabel idLabel = new JLabel("ID:");
+        JTextField idField = new JTextField();
+        JLabel mobileLabel = new JLabel(" New Mobile NO:");
+        JTextField mobileField = new JTextField();
+        JLabel yearLabel = new JLabel(" Updated Year:");
+        JTextField yearField = new JTextField();
+        JLabel EIdLabel = new JLabel(" New Email ID:");
+        JTextField eidField = new JTextField();
+        
+        JButton updateButton = new JButton("Update");
+
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(mobileLabel);
+        panel.add(mobileField);
+        panel.add(yearLabel);
+        panel.add(yearField);
+        panel.add(EIdLabel);
+        panel.add(eidField);
+        panel.add(new JLabel());
+        panel.add(updateButton);
+
+        updateButton.addActionListener(e -> {
+            int id = Integer.parseInt(idField.getText());
+            String newn = mobileField.getText();
+            int y=Integer.parseInt(yearField.getText());
+            String email_id=eidField.getText();
+            try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+                String query = "UPDATE students_data SET mobile_no = ?,year=?,email_id=? WHERE id = ?";
+                PreparedStatement p = connection.prepareStatement(query);
+                
+                
+                p.setString(1, newn); 
+                p.setInt(2, y);       
+                p.setString(3, email_id); 
+                p.setInt(4, id);
+             
+
+                int rowsAffected = p.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(panel, "Data Updated Successfully");
+                    mobileField.setText("");
+                	idField.setText("");
+                	eidField.setText("");
+                	yearField.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Update Failed");
+                } 
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        return panel;
+    }
+
+    private static JPanel createDeletePanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("ID:");
+        JTextField idField = new JTextField();
+        JButton deleteButton = new JButton("Delete");
+
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(deleteButton);
+
+        deleteButton.addActionListener(e -> {
+            int id = Integer.parseInt(idField.getText());
+
+            try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+                String query = "DELETE FROM students_data WHERE id = ?";
+                PreparedStatement p = connection.prepareStatement(query);
+                p.setInt(1, id);
+
+                int rowsAffected = p.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(panel, "Data Deleted Successfully");
+                	idField.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Delete Failed");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        return panel;
+    }
+
+    private static JPanel createDisplayPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        JButton refreshButton = new JButton("Refresh");
+
+        textArea.setEditable(false);
+        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        panel.add(refreshButton, BorderLayout.SOUTH);
+
+        refreshButton.addActionListener(e -> {
+            textArea.setText("");
+
+            try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+                String query = "SELECT * FROM students_data";
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
+
+                while (resultSet.next()) {
+                	int idResult = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String address=resultSet.getString("address");
+                    String mobileno=resultSet.getString("mobile_no");
+                    String email=resultSet.getString("email_id");
+                    String branch=resultSet.getString("branch");
+                    int year=resultSet.getInt("year");
+                    int age = resultSet.getInt("age");
+
+                    textArea.append("ID: " + idResult + "\n");
+                    textArea.append("Name: " + name + "\n");
+                    textArea.append("Age: " + age + "\n");
+                    textArea.append("Address: " + address + "\n");
+                    textArea.append("Mobile No: " + mobileno + "\n");
+                    textArea.append("Email: " + email + "\n");
+                    textArea.append("Branch: " + branch + "\n");
+                    textArea.append("Y: " + year + "\n");
+                    textArea.append("----------------------\n");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        return panel;
     }
 }
