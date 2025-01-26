@@ -49,14 +49,11 @@ This module allows you to delete a student record by their ID. To delete a stude
 
 
 
-
-## Setup Guide ⚙️
-
-Follow these steps to set up and run the project:
-
 ### 1. Clone the Repository
 
 Clone this repository to your local machine using the following command:
 
 ```bash
 git clone https://github.com/patilvikas580/student-management-system.git
+
+
