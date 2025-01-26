@@ -59,4 +59,4 @@ Follow these steps to set up and run the project:
 Clone this repository to your local machine using the following command:
 
 ```bash
-git clone https://github.com/yourusername/student-management-system.git
+git clone https://github.com/patilvikas580/student-management-system.git
